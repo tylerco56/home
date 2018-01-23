@@ -1,9 +1,7 @@
 package com.myd.home.models;
 
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
-import sun.security.util.Password;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,16 +10,25 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Calendar;
 
+
 /**
  * Created by: Tyler Langenfeld
  */
+
+
 
 @Entity
 public class User {
 
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
+
+    @NotEmpty(message = "Please enter your first name.")
+    private String firstName;
+
+    @NotEmpty(message = "Please enter your last name")
+    private String lastName;
 
     @NotEmpty(message = "Email Required.")
     @Email
@@ -32,22 +39,34 @@ public class User {
 
     @NotEmpty(message = "Password Required")
     @Size(min = 6, message = "Please make your password at least 6 characters. - Thanks, Password Goblin")
-    private Password password;
+    private String password;
+
+    @NotEmpty(message = "Password Verification Required")
+    @Size(min = 6, message = "Please make your password at least 6 characters. - Thanks, Password Goblin")
+    private String passwordVerify;
 
     /**Get the date when user was created**/
     @NotNull
     private Calendar creationDate = Calendar.getInstance();
 
-    public User(String email, String userName, Password password) {
-        this.email = email;
-        this.userName = userName;
-        this.password = password;
+    public Integer getId() {
+        return id;
     }
 
-    public User(){}
+    public String getFirstName() {
+        return firstName;
+    }
 
-    public int getId() {
-        return id;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -66,12 +85,20 @@ public class User {
         this.userName = userName;
     }
 
-    public Password getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(Password password) {
+    public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPasswordVerify() {
+        return passwordVerify;
+    }
+
+    public void setPasswordVerify(String passwordVerify) {
+        this.passwordVerify = passwordVerify;
     }
 
     public Calendar getCreationDate() {
