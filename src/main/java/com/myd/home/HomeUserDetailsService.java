@@ -1,3 +1,5 @@
+package com.myd.home;
+
 import com.myd.home.models.User;
 import com.myd.home.models.data.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ public class HomeUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("No user found with username: " + username);
         }
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities("ROLE_USER"));
+        return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(), getAuthorities("ROLE_USER"));
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(String role){

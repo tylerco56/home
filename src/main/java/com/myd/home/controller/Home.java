@@ -2,16 +2,15 @@ package com.myd.home.controller;
 
 import com.myd.home.models.User;
 import com.myd.home.models.data.UserDao;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 /**
  * Created by: Tyler Langenfeld
@@ -23,6 +22,7 @@ public class Home {
     @Autowired
     private UserDao userDao;
 
+
     @GetMapping(value = "/login")
     public String loginGet(Model model) {
 
@@ -31,20 +31,22 @@ public class Home {
         return "login";
     }
 
-    @PostMapping(value = "/login")
+
+    @RequestMapping(value="/homepage", method = RequestMethod.GET)
+    public String goHome(Principal principal, Model model){
+
+        model.addAttribute("username", principal.getName());
+
+        return "homepage";
+    }
+
+    /**
+    @PostMapping(value = "/dologin")
     public String loginPost(@ModelAttribute User user, Model model){
 
-        User realUser = userDao.findByUserName(user.getUserName());
+        return "homepage";
 
-        if (realUser.getId() != null) {
-            return "homepage";
-        } else {
-            model.addAttribute("error", "Invalid Username or Password");
-            model.addAttribute("user", new User());
-            return "login";
-        }
-
-    }
+    }**/
 
     @GetMapping(value = "/signup")
     public String signupGet(Model model) {
