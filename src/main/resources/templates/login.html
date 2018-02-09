@@ -2,23 +2,23 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments :: head"></head>
 <nav th:replace="fragments :: navigation"></nav>
-<body class="container">
-    <form class="col s6 " th:action="@{/doLogin}" method="post">
-        <div class="row card-panel teal lighten-2">
-            <div th:if="${param.error}">Invalid username and password.</div>
-                <div class="input-field offset-s4 col s4 offset-s4">
-                    <label for="login">User Name:</label>
-                    <input class="materialize-textarea" id="login" type="text" name="username" />
-                </div>
-
-            <div class="input-field offset-s4 col s4 offset-s4">
-                <label for="password">Password:</label>
-                <input class="materialize-textarea" id="password" type="password" name="password" />
-            </div>
-
-            <input class="input-field offset-s5 col s2 offset-s5 waves-effect waves-light btn" type="submit" value="Sign In" />
+<body>
+<form th:action="@{/doLogin}" method="post">
+    <div>
+        <div th:if="${param.error}">Invalid username and password.</div>
+        <div>
+            <label for="login">User Name:</label>
+            <input id="login" type="text" name="username" />
         </div>
-    </form>
+
+        <div>
+            <label for="password">Password:</label>
+            <input id="password" type="password" name="password" />
+        </div>
+
+        <input type="submit" value="Sign In" />
+    </div>
+</form>
 
 
 

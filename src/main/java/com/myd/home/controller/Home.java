@@ -1,16 +1,27 @@
 package com.myd.home.controller;
 
+import ch.qos.logback.classic.spi.LoggerRemoteView;
 import com.myd.home.models.User;
 import com.myd.home.models.data.UserDao;
 import com.sun.org.apache.xpath.internal.operations.Mod;
+import jdk.nashorn.internal.runtime.options.LoggingOption;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
+
+
+
 
 /**
  * Created by: Tyler Langenfeld
@@ -35,7 +46,23 @@ public class Home {
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
     public String goHome(Principal principal, Model model){
 
+        String scraped_Data = "";
+
         model.addAttribute("username", principal.getName());
+
+        try {
+            Document doc = Jsoup.connect("http://en.wikipedia.org/").get();
+            scraped_Data += doc.title() + "<br />";
+            Elements newsHeadlines = doc.select("#mp-itn b a");
+            for (Element headline : newsHeadlines) {
+                scraped_Data += headline.attr("title") + headline.absUrl("href") + "<br /><br />";
+            }
+
+        } catch (IOException ex) {
+            System.out.print(ex);
+        }
+
+        model.addAttribute("headLines", scraped_Data );
 
         return "homepage";
     }
