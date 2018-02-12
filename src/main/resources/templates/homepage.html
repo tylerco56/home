@@ -2,9 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments :: head"></head>
 <body>
-welcome <span th:text="${username}"></span>
+welcome <h1 th:text="${username}"></h1>
 
-<span th:text="${headLines}"></span>
+<ol>
+    <li th:each="newsArticle : ${newsArticles}" >
+        <a th:href="${newsArticle.value}" th:text="${newsArticle.key}"></a>
+    </li>
+</ol>
+
+
+
 
 </body>
 </html>

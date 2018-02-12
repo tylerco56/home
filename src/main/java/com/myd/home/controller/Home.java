@@ -15,13 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
-
-
-
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by: Tyler Langenfeld
@@ -46,23 +44,39 @@ public class Home {
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
     public String goHome(Principal principal, Model model){
 
-        String scraped_Data = "";
+        String webpage_title;
+        String newsTitle;
+        String newsUrl;
+        HashMap<String, String> newsArticles = new HashMap<String, String>();
+
 
         model.addAttribute("username", principal.getName());
 
         try {
-            Document doc = Jsoup.connect("http://en.wikipedia.org/").get();
-            scraped_Data += doc.title() + "<br />";
-            Elements newsHeadlines = doc.select("#mp-itn b a");
-            for (Element headline : newsHeadlines) {
-                scraped_Data += headline.attr("title") + headline.absUrl("href") + "<br /><br />";
-            }
 
+            //pulling information from wikipedia
+            Document doc = Jsoup.connect("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US").get();
+
+
+            webpage_title = doc.title();
+
+            //filters headlines by using a css query
+            Elements newsHeadlines = doc.select("#mp-itn b a");
+
+            for (Element headline : newsHeadlines) {
+
+                //extracting the title and url from each headline article
+                newsTitle = headline.attr("title");
+                newsUrl = headline.absUrl("href");
+
+                //adding it to the newsArticles Dictionary
+                newsArticles.put(newsTitle, newsUrl);
+            }
         } catch (IOException ex) {
             System.out.print(ex);
         }
 
-        model.addAttribute("headLines", scraped_Data );
+        model.addAttribute("newsArticles", newsArticles);
 
         return "homepage";
     }
