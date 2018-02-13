@@ -47,36 +47,50 @@ public class Home {
         String webpage_title;
         String newsTitle;
         String newsUrl;
-        HashMap<String, String> newsArticles = new HashMap<String, String>();
+        HashMap<String, String> techArticles = new HashMap<String, String>();
+        HashMap<String, String> topArticles = new HashMap<String, String>();
 
 
         model.addAttribute("username", principal.getName());
 
         try {
 
-            //pulling information from wikipedia
-            Document doc = Jsoup.connect("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US").get();
+            //pulling information from google news
+            Document techDoc = Jsoup.connect("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US").get();
+            Document topDoc = Jsoup.connect("https://news.google.com/news/headlines?ned=us&hl=en&gl=US").get();
 
-
-            webpage_title = doc.title();
+            webpage_title = techDoc.title();
 
             //filters headlines by using a css query
-            Elements newsHeadlines = doc.select("#mp-itn b a");
+            Elements techHeadlines = techDoc.select("[aria-level=2]");
+            Elements topHeadlines = topDoc.select("[aria-level=2]");
 
-            for (Element headline : newsHeadlines) {
+            for (Element headline : techHeadlines) {
 
                 //extracting the title and url from each headline article
-                newsTitle = headline.attr("title");
+                newsTitle = headline.text();
                 newsUrl = headline.absUrl("href");
 
                 //adding it to the newsArticles Dictionary
-                newsArticles.put(newsTitle, newsUrl);
+                techArticles.put(newsTitle, newsUrl);
             }
+
+            for (Element headline : topHeadlines) {
+
+                //extracting the title and url from each headline article
+                newsTitle = headline.text();
+                newsUrl = headline.absUrl("href");
+
+                //adding it to the newsArticles Dictionary
+                topArticles.put(newsTitle, newsUrl);
+            }
+
         } catch (IOException ex) {
             System.out.print(ex);
         }
 
-        model.addAttribute("newsArticles", newsArticles);
+        model.addAttribute("techArticles", techArticles);
+        model.addAttribute("topArticles", topArticles);
 
         return "homepage";
     }
