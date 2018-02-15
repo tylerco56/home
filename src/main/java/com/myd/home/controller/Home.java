@@ -68,11 +68,14 @@ public class Home {
             for (Element headline : techHeadlines) {
 
                 //extracting the title and url from each headline article
-                newsTitle = headline.text();
-                newsUrl = headline.absUrl("href");
+                if (techArticles.size() < 10){
+                    newsTitle = headline.text();
+                    newsUrl = headline.absUrl("href");
 
-                //adding it to the newsArticles Dictionary
-                techArticles.put(newsTitle, newsUrl);
+                    //adding it to the newsArticles Dictionary
+                    techArticles.put(newsTitle, newsUrl);
+                }
+
             }
 
             for (Element headline : topHeadlines) {

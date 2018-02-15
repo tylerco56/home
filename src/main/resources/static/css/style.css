@@ -6,6 +6,26 @@
  * Made By MaterializeCSS.com
  */
 
+html {
+  font-family: GillSans, Calibri, Trebuchet, sans-serif;
+}
+
+a:link {
+  color: black;
+}
+
+a:hover {
+  color: grey;
+}
+
+a:active {
+  color: grey;
+}
+
+a:visited {
+  color: grey;
+}
+
 nav ul a,
 nav .brand-logo {
   color: #444;

@@ -1,27 +1,20 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments :: head"></head>
-<body>
+<body class="container">
 welcome <h1 th:text="${username}"></h1>
 
-<table>
-    <tr style="vertical-align: top;">
-        <td>
-            <ol>
-                <li th:each="techArticle : ${techArticles}" >
-                    <a th:href="${techArticle.value}" th:text="${techArticle.key}"></a>
-                </li>
-            </ol>
-        </td>
-        <td>
-            <ol>
-                <li th:each="topArticle : ${topArticles}" >
-                    <a th:href="${topArticle.value}" th:text="${topArticle.key}"></a>
-                </li>
-            </ol>
-        </td>
-    </tr>
-</table>
+<div class="row">
+    <ol class="col s4 card-panel white z-depth-5 black-text text-darken-2">
+        <div class="container card-title">
+            <h4>Top Tech News</h4>
+            <li th:each="techArticle : ${techArticles}" >
+                <a th:href="${techArticle.value}" th:text="${techArticle.key}"></a>
+            </li>
+        </div>
+    </ol>
+</div>
+
 
 
 
