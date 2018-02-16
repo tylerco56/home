@@ -49,6 +49,7 @@ public class Home {
         String newsUrl;
         HashMap<String, String> techArticles = new HashMap<String, String>();
         HashMap<String, String> topArticles = new HashMap<String, String>();
+        HashMap<String, String> theaterMovies = new HashMap<String, String>();
 
 
         model.addAttribute("username", principal.getName());
@@ -58,12 +59,14 @@ public class Home {
             //pulling information from google news
             Document techDoc = Jsoup.connect("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US").get();
             Document topDoc = Jsoup.connect("https://news.google.com/news/headlines?ned=us&hl=en&gl=US").get();
+            Document inTheatersDoc = Jsoup.connect("http://www.imdb.com/movies-in-theaters/").get();
 
             webpage_title = techDoc.title();
 
             //filters headlines by using a css query
             Elements techHeadlines = techDoc.select("[aria-level=2]");
             Elements topHeadlines = topDoc.select("[aria-level=2]");
+            Elements moviesInTheaters = inTheatersDoc.select("h4 > a");
 
             for (Element headline : techHeadlines) {
 
@@ -88,12 +91,22 @@ public class Home {
                 topArticles.put(newsTitle, newsUrl);
             }
 
+            for (Element movie : moviesInTheaters) {
+
+                //extracting the title and url from each headline article
+                newsTitle = movie.text();
+                newsUrl = movie.absUrl("href");
+
+                //adding it to the newsArticles Dictionary
+                theaterMovies.put(newsTitle, newsUrl);
+            }
         } catch (IOException ex) {
             System.out.print(ex);
         }
 
         model.addAttribute("techArticles", techArticles);
         model.addAttribute("topArticles", topArticles);
+        model.addAttribute("theaterMovies", theaterMovies);
 
         return "homepage";
     }

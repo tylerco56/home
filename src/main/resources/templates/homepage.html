@@ -13,6 +13,14 @@ welcome <h1 th:text="${username}"></h1>
             </li>
         </div>
     </ol>
+    <ol class="col s4 card-panel white z-depth-5 black-text text-darken-2">
+        <div class="container card-title">
+            <h4>Movies in Theaters</h4>
+            <li th:each="movie : ${theaterMovies}" >
+                <a th:href="${movie.value}" th:text="${movie.key}"></a>
+            </li>
+        </div>
+    </ol>
 </div>
 
 
