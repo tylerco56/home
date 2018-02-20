@@ -4,8 +4,8 @@
 <body class="container">
 welcome <h1 th:text="${username}"></h1>
 
-<div th:each="page : ${linkLists}" class="row">
-    <ol class="col s6 card-panel white z-depth-5 black-text text-darken-2">
+<div  class="row">
+    <ol th:each="page : ${linkLists}" class="col s2 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">
             <h4 th:text="${page.titlePage}"></h4>
             <li th:each="techArticle : ${page.titleAndUrl}" >
