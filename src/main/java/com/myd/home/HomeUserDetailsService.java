@@ -20,12 +20,12 @@ public class HomeUserDetailsService implements UserDetailsService {
     private UserDao userDao;
 
     @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User user = userDao.findByUserName(username);
+    public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
+        final User user = userDao.findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException("No user found with username: " + username);
+            throw new UsernameNotFoundException("No user found with username: " + email);
         }
-        return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(), getAuthorities("ROLE_USER"));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities("ROLE_USER"));
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(String role){

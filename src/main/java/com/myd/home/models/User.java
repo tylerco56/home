@@ -24,18 +24,9 @@ public class User {
     @GeneratedValue
     private Integer id;
 
-    @NotEmpty(message = "Please enter your first name.")
-    private String firstName;
-
-    @NotEmpty(message = "Please enter your last name")
-    private String lastName;
-
     @NotEmpty(message = "Email Required.")
     @Email
     private String email;
-
-    @NotEmpty(message = "User Name Required")
-    private String userName;
 
     @NotEmpty(message = "Password Required")
     @Size(min = 6, message = "Please make your password at least 6 characters. - Thanks, Password Goblin")
@@ -53,22 +44,6 @@ public class User {
         return id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -77,13 +52,6 @@ public class User {
         this.email = email;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public String getPassword() {
         return password;

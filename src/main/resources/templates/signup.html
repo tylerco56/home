@@ -4,17 +4,8 @@
 <body>
     <form id="userSignup" th:object="${user}" method="post">
 
-    <p>First Name: <input type="text" th:field="*{firstName}" />
-        <span th:errors="*{firstName}" class="error"></span> </p>
-
-    <p>Last Name: <input type="text" th:field="*{lastName}" />
-        <span th:errors="*{lastName}" class="error"></span> </p>
-
     <p>Email: <input type="text" th:field="*{email}" />
         <span th:errors="*{email}" class="error"></span> </p>
-
-    <p>User Name: <input type="text" th:field="*{userName}" />
-        <span th:errors="*{userName}" class="error"></span> </p>
 
     <p>Password: <input type="text" th:field="*{password}" />
         <span th:errors="*{password}" class="error"></span>

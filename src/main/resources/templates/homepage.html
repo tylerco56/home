@@ -4,20 +4,12 @@
 <body class="container">
 welcome <h1 th:text="${username}"></h1>
 
-<div class="row">
-    <ol class="col s4 card-panel white z-depth-5 black-text text-darken-2">
+<div th:each="page : ${linkLists}" class="row">
+    <ol class="col s6 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">
-            <h4>Top Tech News</h4>
-            <li th:each="techArticle : ${techArticles}" >
+            <h4 th:text="${page.titlePage}"></h4>
+            <li th:each="techArticle : ${page.titleAndUrl}" >
                 <a th:href="${techArticle.value}" th:text="${techArticle.key}"></a>
-            </li>
-        </div>
-    </ol>
-    <ol class="col s4 card-panel white z-depth-5 black-text text-darken-2">
-        <div class="container card-title">
-            <h4>Movies in Theaters</h4>
-            <li th:each="movie : ${theaterMovies}" >
-                <a th:href="${movie.value}" th:text="${movie.key}"></a>
             </li>
         </div>
     </ol>

@@ -1,6 +1,7 @@
 package com.myd.home.controller;
 
 import ch.qos.logback.classic.spi.LoggerRemoteView;
+import com.myd.home.models.Links;
 import com.myd.home.models.User;
 import com.myd.home.models.data.UserDao;
 import com.sun.org.apache.xpath.internal.operations.Mod;
@@ -44,71 +45,33 @@ public class Home {
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
     public String goHome(Principal principal, Model model){
 
-        String webpage_title;
-        String newsTitle;
-        String newsUrl;
-        HashMap<String, String> techArticles = new HashMap<String, String>();
-        HashMap<String, String> topArticles = new HashMap<String, String>();
-        HashMap<String, String> theaterMovies = new HashMap<String, String>();
-
+        ArrayList<Links> linkLists = new ArrayList<>();
 
         model.addAttribute("username", principal.getName());
 
-        try {
+        Links techNews = new Links("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US", "[aria-level=2]");
+        techNews.generateFilterdData();
+        linkLists.add(techNews);
 
-            //pulling information from google news
-            Document techDoc = Jsoup.connect("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US").get();
-            Document topDoc = Jsoup.connect("https://news.google.com/news/headlines?ned=us&hl=en&gl=US").get();
-            Document inTheatersDoc = Jsoup.connect("http://www.imdb.com/movies-in-theaters/").get();
+        Links topMovies = new Links("http://www.imdb.com/movies-in-theaters/", "h4 > a");
+        topMovies.generateFilterdData();
+        linkLists.add(topMovies);
 
-            webpage_title = techDoc.title();
+        for (Links page : linkLists){
 
-            //filters headlines by using a css query
-            Elements techHeadlines = techDoc.select("[aria-level=2]");
-            Elements topHeadlines = topDoc.select("[aria-level=2]");
-            Elements moviesInTheaters = inTheatersDoc.select("h4 > a");
+            for (Element pageLink : page.getFilterdData()){
 
-            for (Element headline : techHeadlines) {
+                page.setLinkTitle(pageLink.text());
+                page.setLinkUrl(pageLink.absUrl("href"));
 
-                //extracting the title and url from each headline article
-                if (techArticles.size() < 10){
-                    newsTitle = headline.text();
-                    newsUrl = headline.absUrl("href");
-
-                    //adding it to the newsArticles Dictionary
-                    techArticles.put(newsTitle, newsUrl);
-                }
-
+                page.addToLinkList(page.getLinkTitle(), page.getLinkUrl());
             }
-
-            for (Element headline : topHeadlines) {
-
-                //extracting the title and url from each headline article
-                newsTitle = headline.text();
-                newsUrl = headline.absUrl("href");
-
-                //adding it to the newsArticles Dictionary
-                topArticles.put(newsTitle, newsUrl);
-            }
-
-            for (Element movie : moviesInTheaters) {
-
-                //extracting the title and url from each headline article
-                newsTitle = movie.text();
-                newsUrl = movie.absUrl("href");
-
-                //adding it to the newsArticles Dictionary
-                theaterMovies.put(newsTitle, newsUrl);
-            }
-        } catch (IOException ex) {
-            System.out.print(ex);
         }
 
-        model.addAttribute("techArticles", techArticles);
-        model.addAttribute("topArticles", topArticles);
-        model.addAttribute("theaterMovies", theaterMovies);
+        model.addAttribute("linkLists", linkLists);
 
         return "homepage";
+
     }
 
     /**
