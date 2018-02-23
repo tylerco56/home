@@ -1,15 +1,10 @@
 package com.myd.home.controller;
 
-import ch.qos.logback.classic.spi.LoggerRemoteView;
 import com.myd.home.models.Links;
 import com.myd.home.models.User;
 import com.myd.home.models.data.UserDao;
-import com.sun.org.apache.xpath.internal.operations.Mod;
-import jdk.nashorn.internal.runtime.options.LoggingOption;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import com.myd.home.models.GmailApi;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,7 +15,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by: Tyler Langenfeld
@@ -43,9 +37,10 @@ public class Home {
 
 
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
-    public String goHome(Principal principal, Model model){
+    public String goHome(Principal principal, Model model) throws IOException {
 
         ArrayList<Links> linkLists = new ArrayList<>();
+        ArrayList<String> labelLists = new ArrayList<>();
 
         model.addAttribute("username", principal.getName());
 
@@ -56,6 +51,10 @@ public class Home {
         Links topMovies = new Links("http://www.imdb.com/movies-in-theaters/", "h4 > a");
         topMovies.generateFilterdData();
         linkLists.add(topMovies);
+
+        GmailApi labelData = new GmailApi();
+
+        labelLists = labelData.generateLabels();
 
         for (Links page : linkLists){
 
@@ -69,18 +68,19 @@ public class Home {
         }
 
         model.addAttribute("linkLists", linkLists);
+        model.addAttribute("labelLists", labelLists);
 
         return "homepage";
 
     }
 
-    /**
+
     @PostMapping(value = "/dologin")
     public String loginPost(@ModelAttribute User user, Model model){
 
         return "homepage";
 
-    }**/
+    }
 
     @GetMapping(value = "/signup")
     public String signupGet(Model model) {
@@ -90,7 +90,7 @@ public class Home {
         return "signup";
     }
 
-    @PostMapping(value = "signup")
+    @PostMapping(value = "/signup")
     public String userSignupPost(@ModelAttribute @Valid User user, Errors errors, Model model){
 
         Boolean passMismatch = false;
@@ -111,4 +111,6 @@ public class Home {
         userDao.save(user);
         return "login";
     }
+
+
 }
