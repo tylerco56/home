@@ -14,6 +14,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.*;
 import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.Thread;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +31,7 @@ public class GmailApi {
 
         /** Directory to store user credentials for this application. */
         private static final java.io.File DATA_STORE_DIR = new java.io.File(
-                System.getProperty("user.home"), ".credentials/gmail-java-quickstart");
+                System.getProperty("user.home"), ".credentials/gmail");
 
         /** Global instance of the {@link FileDataStoreFactory}. */
         private static FileDataStoreFactory DATA_STORE_FACTORY;
@@ -48,7 +49,7 @@ public class GmailApi {
          * at ~/.credentials/gmail-java-quickstart
          */
         private static final List<String> SCOPES =
-                Arrays.asList(GmailScopes.GMAIL_LABELS);
+                Arrays.asList(GmailScopes.GMAIL_READONLY);
 
         static {
             try {
@@ -98,28 +99,36 @@ public class GmailApi {
                     .build();
         }
 
-        public ArrayList<String> generateLabels() throws IOException{
+        public ArrayList<String> generateEmails() throws IOException{
             // Build a new authorized API client service.
             Gmail service = getGmailService();
-            ArrayList<String> labelList = new ArrayList<>();
+            ArrayList<String> allMessageList = new ArrayList<>();
+            String query = "jacob francois";
 
             // Print the labels in the user's account.
             String user = "me";
-            ListLabelsResponse listResponse =
-                    service.users().labels().list(user).execute();
-            List<Label> labels = listResponse.getLabels();
-            if (labels.size() == 0) {
-                labelList.add("No labels found.");
-            } else {
-                for (Label label : labels) {
-                    labelList.add(label.getName());
-                }
+            ListMessagesResponse response =
+                    service.users().messages().list(user).setQ(query).execute();
+            ArrayList<Message> messages = new ArrayList<>();
 
+            while (response.getMessages() != null) {
+                messages.addAll(response.getMessages());
+                if (response.getNextPageToken() != null) {
+                    String pageToken = response.getNextPageToken();
+                    response = service.users().messages().list(user).setQ(query)
+                            .setPageToken(pageToken).execute();
+                } else {
+                    break;
+                }
             }
 
+            for (Message message : messages) {
+                Thread emailBody = service.users().threads().get(user, message.getThreadId()).execute();
+                allMessageList.add(emailBody.getSnippet());
+            }
 
-
-            return labelList;
+            return allMessageList;
+        }
         }
 
-    }
+
