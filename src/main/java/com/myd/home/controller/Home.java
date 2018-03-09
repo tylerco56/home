@@ -40,7 +40,7 @@ public class Home {
     public String goHome(Principal principal, Model model) throws IOException {
 
         ArrayList<Links> linkLists = new ArrayList<>();
-        ArrayList<String> labelLists = new ArrayList<>();
+        ArrayList<String> emails = new ArrayList<>();
 
         model.addAttribute("username", principal.getName());
 
@@ -52,9 +52,9 @@ public class Home {
         topMovies.generateFilterdData();
         linkLists.add(topMovies);
 
-        GmailApi labelData = new GmailApi();
+        GmailApi emailList = new GmailApi();
 
-        labelLists = labelData.generateLabels();
+        emails = emailList.generateEmails();
 
         for (Links page : linkLists){
 
@@ -68,7 +68,7 @@ public class Home {
         }
 
         model.addAttribute("linkLists", linkLists);
-        model.addAttribute("labelLists", labelLists);
+        model.addAttribute("emails", emails);
 
         return "homepage";
 

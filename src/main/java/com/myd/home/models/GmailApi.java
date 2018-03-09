@@ -123,8 +123,7 @@ public class GmailApi {
             }
 
             for (Message message : messages) {
-                Thread emailBody = service.users().threads().get(user, message.getThreadId()).execute();
-                allMessageList.add(emailBody.getSnippet());
+                allMessageList.add(message.getRaw());
             }
 
             return allMessageList;
