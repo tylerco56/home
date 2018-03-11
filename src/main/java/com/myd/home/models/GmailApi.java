@@ -9,6 +9,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.util.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
 
 import com.google.api.services.gmail.GmailScopes;
@@ -16,12 +17,19 @@ import com.google.api.services.gmail.model.*;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Thread;
 
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 public class GmailApi {
 
@@ -104,6 +112,8 @@ public class GmailApi {
             Gmail service = getGmailService();
             ArrayList<String> allMessageList = new ArrayList<>();
             String query = "jacob francois";
+            Properties props = new Properties();
+            Session session = Session.getDefaultInstance(props, null);
 
             // Print the labels in the user's account.
             String user = "me";
@@ -123,12 +133,30 @@ public class GmailApi {
             }
 
             for (Message message : messages) {
-                Thread emailBody = service.users().threads().get(user, message.getThreadId()).execute();
-                allMessageList.add(emailBody.getSnippet());
-            }
+                Message messageDetails = service.users().messages().get(user, message.getThreadId()).setFormat("raw").execute();
+                byte[] emailBytes = Base64.decodeBase64(message.getRaw());
+
+                try {
+                    MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
+
+                    messageDetails.put("subject", email.getSubject());
+                    messageDetails.put("from", email.getSender() != null ? email.getSender().toString() : "None");
+                    messageDetails.put("time", email.getSentDate() != null ? email.getSentDate().toString() : "None");
+                    messageDetails.put("snippet", message.getSnippet());
+                    messageDetails.put("threadId", message.getThreadId());
+                    messageDetails.put("id", message.getId());
+                    // messageDetails.put("body", getText(email));
+
+                    allMessageList.add();
+
+                } catch (IOException ex) {
+                    throw ex;
+                } catch (MessagingException ex) {
+                throw ex;
+                }
 
             return allMessageList;
         }
-        }
+
 
 
