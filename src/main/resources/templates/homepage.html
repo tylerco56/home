@@ -5,7 +5,7 @@
 welcome <h1 th:text="${username}"></h1>
 
 <div  class="row">
-    <ol th:each="page : ${linkLists}" class="col s6 card-panel white z-depth-5 black-text text-darken-2">
+    <ol th:each="page : ${linkLists}" class="col s4 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">
             <h4 th:text="${page.titlePage}"></h4>
             <li th:each="techArticle : ${page.titleAndUrl}" >
@@ -13,13 +13,17 @@ welcome <h1 th:text="${username}"></h1>
             </li>
         </div>
     </ol>
+    <ol class="col s4 card-panel white z-depth-5 black-text text-darken-2">
+        <div class="container card-title">
+            <h4>Last 5 Days Unread Email Senders </h4>
+            <span th:each="email : ${emails}">
+                <li th:text="${email}"></li>
+            </span>
+        </div>
+    </ol>
 </div>
 <div>
-    <ul>
-        <span th:each="email : ${emails}">
-        <li th:text="${email}"></li>
-        </span>
-    </ul>
+
 </div>
 </body>
 </html>

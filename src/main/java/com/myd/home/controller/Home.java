@@ -6,11 +6,13 @@ import com.myd.home.models.data.UserDao;
 import com.myd.home.models.GmailApi;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mapping.model.MappingException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
@@ -37,12 +39,13 @@ public class Home {
 
 
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
-    public String goHome(Principal principal, Model model) throws IOException {
+    public String goHome(Principal principal, Model model) throws IOException, MessagingException {
 
         ArrayList<Links> linkLists = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
 
-        model.addAttribute("username", principal.getName());
+        String username = principal.getName();
+        model.addAttribute("username", username);
 
         Links techNews = new Links("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US", "[aria-level=2]");
         techNews.generateFilterdData();
@@ -54,16 +57,30 @@ public class Home {
 
         GmailApi emailList = new GmailApi();
 
-        emails = emailList.generateEmails();
+        try {
+            emails = emailList.generateEmails(username);
+        } catch (MessagingException ex) {
+            throw ex;
+        }
+
 
         for (Links page : linkLists){
 
+            int maxResults = 10;
+            int index = 0;
+
             for (Element pageLink : page.getFilterdData()){
 
-                page.setLinkTitle(pageLink.text());
-                page.setLinkUrl(pageLink.absUrl("href"));
+               if (index < maxResults){
+                    page.setLinkTitle(pageLink.text());
+                    page.setLinkUrl(pageLink.absUrl("href"));
+                    page.addToLinkList(page.getLinkTitle(), page.getLinkUrl());
+                    index++;
+             } else {
+                    break;
+                    }
 
-                page.addToLinkList(page.getLinkTitle(), page.getLinkUrl());
+
             }
         }
 
