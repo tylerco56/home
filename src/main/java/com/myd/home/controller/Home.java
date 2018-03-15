@@ -39,12 +39,23 @@ public class Home {
 
 
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
-    public String goHome(Principal principal, Model model) throws IOException, MessagingException {
+    public String goHome(Principal principal, Model model) {
 
         ArrayList<Links> linkLists = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
-
         String username = principal.getName();
+        String exception;
+
+        GmailApi emailList = new GmailApi();
+
+        try {
+            emails = emailList.generateEmails(username);
+        } catch (MessagingException e) {
+            exception = e.getMessage();
+        } catch (IOException e) {
+            exception = e.getMessage();
+        }
+
         model.addAttribute("username", username);
 
         Links techNews = new Links("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US", "[aria-level=2]");
@@ -54,15 +65,6 @@ public class Home {
         Links topMovies = new Links("http://www.imdb.com/movies-in-theaters/", "h4 > a");
         topMovies.generateFilterdData();
         linkLists.add(topMovies);
-
-        GmailApi emailList = new GmailApi();
-
-        try {
-            emails = emailList.generateEmails(username);
-        } catch (MessagingException ex) {
-            throw ex;
-        }
-
 
         for (Links page : linkLists){
 
@@ -93,7 +95,8 @@ public class Home {
 
 
     @PostMapping(value = "/dologin")
-    public String loginPost(@ModelAttribute User user, Model model){
+    public String loginPost(@ModelAttribute User user){
+
 
         return "homepage";
 

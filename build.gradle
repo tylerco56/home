@@ -26,7 +26,7 @@ repositories {
 dependencies {
     compile('org.jsoup:jsoup:1.11.2')
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('mysql:mysql-connector-java')
+	compile('mysql:mysql-connector-java:5.1.6')
 	compile('org.springframework.security:spring-security-web')
 	compile('org.springframework.security:spring-security-config')
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
@@ -36,6 +36,7 @@ dependencies {
 	compile('com.google.oauth-client:google-oauth-client-jetty:1.23.0')
 	compile('com.google.apis:google-api-services-gmail:v1-rev82-1.23.0')
 	runtime('org.springframework.boot:spring-boot-devtools')
+	runtime('mysql:mysql-connector-java:5.1.6')
 	compile('javax.mail:mail:1.4.7')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.security:spring-security-test')

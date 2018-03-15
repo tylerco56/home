@@ -1,9 +1,12 @@
 package com.myd.home.models;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+
+
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -11,6 +14,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.*;
@@ -20,7 +24,9 @@ import com.google.api.services.gmail.model.Thread;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-
+import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
+import java.sql.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -31,6 +37,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class GmailApi {
 
@@ -81,6 +90,7 @@ public class GmailApi {
         }
     }
 
+
     /**
      * Creates an authorized Credential object.
      *
@@ -98,15 +108,25 @@ public class GmailApi {
         GoogleAuthorizationCodeFlow flow =
                 new GoogleAuthorizationCodeFlow.Builder(
                         HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                        .setDataStoreFactory(DATA_STORE_FACTORY)
+                        //not correct for webserver
+                        // .setDataStoreFactory(DATA_STORE_FACTORY)
                         .setAccessType("offline")
                         .build();
+
+
+       // Credential credential = new AuthorizationCodeInstalledApp(
+       //         flow, new LocalServerReceiver()).authorize("user");
+
         Credential credential = new AuthorizationCodeInstalledApp(
                 flow, new LocalServerReceiver()).authorize("user");
+
+        //not right for webserver
         System.out.println(
                 "Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
+
         return credential;
     }
+
 
     /**
      * Build and return an authorized Gmail client service.
@@ -129,9 +149,28 @@ public class GmailApi {
         Integer maxSearchResults = 10;
         Integer index = 0;
 
+        String user = username;
+
+        try {
+            String myDriver = "com.mysql.jdbc.Driver";
+            String myUrl = "jdbc:mysql://localhost:8889/home";
+            Class.forName(myDriver);
+            Connection conn = DriverManager.getConnection(myUrl, "home", "home");
+
+            String query_sql = "UPDATE user SET token='butter' WHERE email='tylerco.56@gmail.com'";
+
+            PreparedStatement preparedStmt = conn.prepareStatement(query_sql);
+
+            preparedStmt.executeUpdate();
+
+            conn.close();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
 
         // Print the labels in the user's account.
-        String user = username;
         ListMessagesResponse response =
                 service.users().messages().list(user).setQ(query).execute();
 

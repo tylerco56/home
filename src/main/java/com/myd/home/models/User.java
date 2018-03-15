@@ -21,28 +21,23 @@ import java.util.Calendar;
 public class User {
 
     @Id
-    @GeneratedValue
-    private Integer id;
-
     @NotEmpty(message = "Email Required.")
     @Email
     private String email;
 
     @NotEmpty(message = "Password Required")
-    @Size(min = 6, message = "Please make your password at least 6 characters. - Thanks, Password Goblin")
+    @Size(min = 6, message = "Please make your password at least 6 characters.")
     private String password;
 
     @NotEmpty(message = "Password Verification Required")
-    @Size(min = 6, message = "Please make your password at least 6 characters. - Thanks, Password Goblin")
+    @Size(min = 6, message = "Please make your password at least 6 characters.")
     private String passwordVerify;
 
     /**Get the date when user was created**/
     @NotNull
     private Calendar creationDate = Calendar.getInstance();
 
-    public Integer getId() {
-        return id;
-    }
+    private String token = "";
 
     public String getEmail() {
         return email;
@@ -51,7 +46,6 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
-
 
     public String getPassword() {
         return password;
@@ -71,5 +65,13 @@ public class User {
 
     public Calendar getCreationDate() {
         return creationDate;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
