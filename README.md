@@ -4,7 +4,6 @@ from different internet sources giving the user up-to-date coverage on items of 
 eliminate the need to go to different websites and applications to collect information for regular day to day living.
 ### Features
 - User login: Users will be able to create accounts, and log in to the application. Each user will have a profile page.
-- Saved data: Important information will be stored for the user in a database.  This data will be used to create a better user experience.
 - News: Important news to the user will be extracted from multiple websites and displayed in an easily readable format.
 - Email: Top priority emails will be displayed for the user.  Multiple email accounts can be set up.
 - Calendar: Events of the day will be displayed in a simple readable format.
@@ -18,6 +17,7 @@ eliminate the need to go to different websites and applications to collect infor
 - Sass
 - MySql
 - Jsoup API
+- Google APIs (in development)
 
 ### What I'll Have to Learn
 - In order to extract raw data from websites I will learn how to use the Jsoup API. 
