@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments :: head"></head>
+<nav th:replace="fragments :: navigation"></nav>
 <body class="container">
 welcome <h1 th:text="${username}"></h1>
 
@@ -15,6 +16,7 @@ welcome <h1 th:text="${username}"></h1>
     </ol>
     <ol class="col s4 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">
+            <a href="/gmail">get email</a>
             <h4>Last 5 Days Unread Email Senders </h4>
             <span th:each="email : ${emails}">
                 <li th:text="${email}"></li>

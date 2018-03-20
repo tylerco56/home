@@ -1,156 +1,86 @@
 package com.myd.home.models;
 
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-
-
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.util.Base64;
-import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
-
-import com.google.api.services.gmail.GmailScopes;
-import com.google.api.services.gmail.model.*;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.model.Thread;
+import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.ListMessagesResponse;
+import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePartHeader;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
-import java.sql.*;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+@RestController
 public class GmailApi {
 
-    /**
-     * Application name.
-     */
-    private static final String APPLICATION_NAME =
-            "Home";
+    /**Application name.*/
+    private static final String APPLICATION_NAME = "Home";
 
-    /**
-     * Directory to store user credentials for this application.
-     */
-    private static final java.io.File DATA_STORE_DIR = new java.io.File(
-            System.getProperty("user.home"), ".credentials/gmail");
-
-    /**
-     * Global instance of the {@link FileDataStoreFactory}.
-     */
-    private static FileDataStoreFactory DATA_STORE_FACTORY;
-
-    /**
-     * Global instance of the JSON factory.
-     */
-    private static final JsonFactory JSON_FACTORY =
-            JacksonFactory.getDefaultInstance();
-
-    /**
-     * Global instance of the HTTP transport.
-     */
+    /**Global instance of the HTTP transport.*/
     private static HttpTransport HTTP_TRANSPORT;
 
-    /**
-     * Global instance of the scopes required by this quickstart.
-     * <p>
-     * If modifying these scopes, delete your previously saved credentials
-     * at ~/.credentials/gmail-java-quickstart
-     */
-    private static final List<String> SCOPES =
-            Arrays.asList(GmailScopes.GMAIL_READONLY);
+    /**Global instance of the JSON factory.*/
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    static {
-        try {
+    /**Global instance of Gmail client**/
+    private static com.google.api.services.gmail.Gmail client;
+
+    GoogleClientSecrets clientSecrets;
+    GoogleAuthorizationCodeFlow flow;
+    Credential credential;
+
+    private String clientId = "597782319739-5e99ncf1nju70hdevko1qll9eo538u61.apps.googleusercontent.com";
+
+    private String clientSecret = "HB-XtOeMgD_anrH7LTgFytF_";
+
+    private String redirectUri = "http://localhost:8080/homepage";
+
+    public String authorize() throws Exception {
+        AuthorizationCodeRequestUrl authorizationUrl;
+        if (flow == null) {
+            GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+            web.setClientId(clientId);
+            web.setClientSecret(clientSecret);
+            clientSecrets = new GoogleClientSecrets().setWeb(web);
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.exit(1);
+            flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets,
+                    Collections.singleton(GmailScopes.GMAIL_READONLY)).build();
         }
+        authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectUri);
+
+        return authorizationUrl.build();
     }
 
-
-    /**
-     * Creates an authorized Credential object.
-     *
-     * @return an authorized Credential object.
-     * @throws IOException
-     */
-    public static Credential authorize() throws IOException {
-        // Load client secrets.
-        InputStream in =
-                GmailApi.class.getResourceAsStream("/client_secret.json");
-        GoogleClientSecrets clientSecrets =
-                GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-        // Build flow and trigger user authorization request.
-        GoogleAuthorizationCodeFlow flow =
-                new GoogleAuthorizationCodeFlow.Builder(
-                        HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                        //not correct for webserver
-                        // .setDataStoreFactory(DATA_STORE_FACTORY)
-                        .setAccessType("offline")
-                        .build();
-
-
-       // Credential credential = new AuthorizationCodeInstalledApp(
-       //         flow, new LocalServerReceiver()).authorize("user");
-
-        Credential credential = new AuthorizationCodeInstalledApp(
-                flow, new LocalServerReceiver()).authorize("user");
-
-        //not right for webserver
-        System.out.println(
-                "Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
-
-        return credential;
-    }
-
-
-    /**
-     * Build and return an authorized Gmail client service.
-     *
-     * @return an authorized Gmail client service
-     * @throws IOException
-     */
-    public static Gmail getGmailService() throws IOException {
-        Credential credential = authorize();
-        return new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
-
-    public ArrayList<String> generateEmails(String username) throws IOException, MessagingException {
+    public ArrayList<String> generateEmails( String code) throws IOException, MessagingException {
         // Build a new authorized API client service.
-        Gmail service = getGmailService();
+        TokenResponse tokenResponse = flow.newTokenRequest(code).setRedirectUri(redirectUri).execute();
+        credential = flow.createAndStoreCredential(tokenResponse, "userID");
+
+        client = new com.google.api.services.gmail.Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).
+                setApplicationName(APPLICATION_NAME).build();
+
+
+
         ArrayList<String> sender = new ArrayList<>();
         String query = "label:inbox is:unread newer_than:5d category:primary";
         Integer maxSearchResults = 10;
         Integer index = 0;
 
-        String user = username;
+        String userID = "me";
 
+        /**
         try {
             String myDriver = "com.mysql.jdbc.Driver";
             String myUrl = "jdbc:mysql://localhost:8889/home";
@@ -168,30 +98,20 @@ public class GmailApi {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
+        **/
 
         // Print the labels in the user's account.
         ListMessagesResponse response =
-                service.users().messages().list(user).setQ(query).execute();
+                client.users().messages().list(userID).setQ(query).execute();
 
-        ArrayList<Message> messageIds = new ArrayList<>();
+        List<Message> messageIds = response.getMessages();
         List<MessagePartHeader> header = new ArrayList<>();
 
-        while (response.getMessages() != null) {
-            messageIds.addAll(response.getMessages());
-            if (response.getNextPageToken() != null) {
-                String pageToken = response.getNextPageToken();
-                response = service.users().messages().list(user).setQ(query)
-                        .setPageToken(pageToken).execute();
-            } else {
-                break;
-            }
-        }
 
         for (Message messageId : messageIds) {
             if (index < maxSearchResults){
 
-                Message message = service.users().messages().get(user, messageId.getId()).execute();
+                Message message = client.users().messages().get(userID, messageId.getId()).execute();
                 int lastHeaderIndex = message.getPayload().getHeaders().size();
                 String fromAddress = "";
 
@@ -209,14 +129,84 @@ public class GmailApi {
                 sender.add(fromAddress);
                 index++;
 
-                } else { break; }
+            } else { break; }
         }
 
         return sender;
 
     }
 
-}
+    public static String getApplicationName() {
+        return APPLICATION_NAME;
+    }
 
+    public static HttpTransport getHttpTransport() {
+        return HTTP_TRANSPORT;
+    }
+
+    public static JsonFactory getJsonFactory() {
+        return JSON_FACTORY;
+    }
+
+    public static Gmail getClient() {
+        return client;
+    }
+
+    public GoogleClientSecrets getClientSecrets() {
+        return clientSecrets;
+    }
+
+    public GoogleAuthorizationCodeFlow getFlow() {
+        return flow;
+    }
+
+    public Credential getCredential() {
+        return credential;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public static void setHttpTransport(HttpTransport httpTransport) {
+        HTTP_TRANSPORT = httpTransport;
+    }
+
+    public static void setClient(Gmail client) {
+        GmailApi.client = client;
+    }
+
+    public void setClientSecrets(GoogleClientSecrets clientSecrets) {
+        this.clientSecrets = clientSecrets;
+    }
+
+    public void setFlow(GoogleAuthorizationCodeFlow flow) {
+        this.flow = flow;
+    }
+
+    public void setCredential(Credential credential) {
+        this.credential = credential;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
+
+    public void setRedirectUri(String redirectUri) {
+        this.redirectUri = redirectUri;
+    }
+}
 
 

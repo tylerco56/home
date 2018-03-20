@@ -1,16 +1,15 @@
 package com.myd.home.controller;
-
+import com.myd.home.models.GmailApi;
 import com.myd.home.models.Links;
 import com.myd.home.models.User;
 import com.myd.home.models.data.UserDao;
-import com.myd.home.models.GmailApi;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mapping.model.MappingException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -18,42 +17,50 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+
+
 /**
  * Created by: Tyler Langenfeld
  */
-
 @Controller
 public class Home {
 
     @Autowired
     private UserDao userDao;
 
+    private String code = null;
 
-    @GetMapping(value = "/login")
+    GmailApi service = new GmailApi();
+
+
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String loginGet(Model model) {
 
         model.addAttribute("title", "Login");
         model.addAttribute("user", new User());
+        model.addAttribute("code", null);
+
         return "login";
     }
 
 
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
-    public String goHome(Principal principal, Model model) {
+    public String goHome(Principal principal, Model model, @RequestParam(required = false) String code) {
 
         ArrayList<Links> linkLists = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         String username = principal.getName();
         String exception;
 
-        GmailApi emailList = new GmailApi();
-
-        try {
-            emails = emailList.generateEmails(username);
-        } catch (MessagingException e) {
-            exception = e.getMessage();
-        } catch (IOException e) {
-            exception = e.getMessage();
+         if (code != null){
+            try {
+                emails = service.generateEmails(code);
+            } catch (MessagingException e) {
+                exception = e.getMessage();
+            } catch (IOException e) {
+                exception = e.getMessage();
+            }
         }
 
         model.addAttribute("username", username);
@@ -88,11 +95,11 @@ public class Home {
 
         model.addAttribute("linkLists", linkLists);
         model.addAttribute("emails", emails);
+        model.addAttribute("code", code);
 
         return "homepage";
 
     }
-
 
     @PostMapping(value = "/dologin")
     public String loginPost(@ModelAttribute User user){
@@ -132,5 +139,17 @@ public class Home {
         return "login";
     }
 
+    @RequestMapping(value = "/gmail", method = RequestMethod.GET)
+    public ModelAndView googleConnectionStatus() throws Exception {
 
-}
+        String url = service.authorize();
+
+        return new ModelAndView("redirect:" + url);
+    }
+
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public String logout() {
+
+        return "logout";
+    }
+ }
