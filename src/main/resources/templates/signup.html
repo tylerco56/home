@@ -1,22 +1,23 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments :: head"></head>
+<nav th:replace="fragments :: navigation"></nav>
 <body>
     <form id="userSignup" th:object="${user}" method="post">
 
     <p>Email: <input type="text" th:field="*{email}" />
         <span th:errors="*{email}" class="error"></span> </p>
 
-    <p>Password: <input type="text" th:field="*{password}" />
+    <p>Password: <input type="password" th:field="*{password}" />
         <span th:errors="*{password}" class="error"></span>
         <span th:text="${passMismatch}" class="error">Password MissMatch</span></p>
 
-    <p>Verify Password: <input type="text" th:field="*{passwordVerify}" />
+    <p>Verify Password: <input type="password" th:field="*{passwordVerify}" />
         <span th:errors="*{passwordVerify}" class="error"></span>
         <span th:text="${passMismatch}" class="error">Password MissMatch</span></p>
 
     <p><input type="submit" value="Submit" /></p>
     </form>
-    <nav th:replace="fragments :: navigation"></nav>
+
 </body>
 </html>
