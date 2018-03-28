@@ -2,13 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments :: head"></head>
 <nav th:replace="fragments :: navigation"></nav>
-<body class="container">
-welcome <h1 th:text="${username}"></h1>
+<body>
+<h6>Welcome user <span th:text="${username}" /></h6>
 
 <div  class="row">
     <ol th:each="page : ${linkLists}" class="col s4 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">
-            <h4 th:text="${page.titlePage}"></h4>
+            <h5 th:text="${page.titlePage}"></h5>
             <li th:each="techArticle : ${page.titleAndUrl}" >
                 <a th:href="${techArticle.value}" th:text="${techArticle.key}"></a>
             </li>
@@ -17,7 +17,7 @@ welcome <h1 th:text="${username}"></h1>
     <ol class="col s4 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">
             <a href="/gmail">get email</a>
-            <h4>Last 5 Days Unread Email Senders </h4>
+            <h5>Last 5 Days Unread Email Senders </h5>
             <span th:each="email : ${emails}">
                 <li th:text="${email}"></li>
             </span>

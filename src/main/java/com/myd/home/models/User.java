@@ -3,11 +3,10 @@ package com.myd.home.models;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 
@@ -36,6 +35,12 @@ public class User {
     /**Get the date when user was created**/
     @NotNull
     private Calendar creationDate = Calendar.getInstance();
+
+    /**
+    @OneToMany
+    @JoinColumn(name = "raked_link_id")
+    private ArrayList<Link> rakedSites = new ArrayList<>();
+    */
 
     private String token = "";
 

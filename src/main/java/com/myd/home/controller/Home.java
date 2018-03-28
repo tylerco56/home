@@ -1,7 +1,9 @@
 package com.myd.home.controller;
 import com.myd.home.models.GmailApi;
+import com.myd.home.models.Link;
 import com.myd.home.models.Links;
 import com.myd.home.models.User;
+import com.myd.home.models.data.LinkDao;
 import com.myd.home.models.data.UserDao;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
+
 /**
  * Created by: Tyler Langenfeld
  */
@@ -28,6 +31,9 @@ public class Home {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private LinkDao linkDao;
 
     private String code = null;
 
@@ -49,6 +55,8 @@ public class Home {
     public String goHome(Principal principal, Model model, @RequestParam(required = false) String code) {
 
         ArrayList<Links> linkLists = new ArrayList<>();
+        ArrayList<Link> sourceSiteLink = new ArrayList<>();
+        ArrayList<Links> sourceSiteLinkList = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         String username = principal.getName();
         String exception;
@@ -65,17 +73,70 @@ public class Home {
 
         model.addAttribute("username", username);
 
-        Links techNews = new Links("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US", "[aria-level=2]");
-        techNews.generateFilterdData();
-        linkLists.add(techNews);
+        com.myd.home.models.Link googleNews = new Link("https://news.google.com/news/?ned=us&gl=US&hl=en", "div.JAPqpe > a[target='_self']");
+        sourceSiteLink.add(googleNews);
 
+        com.myd.home.models.Link yahooNews = new Link("https://www.yahoo.com/news/", "ul > li > a[title]");
+        sourceSiteLink.add(yahooNews);
+
+
+
+        for (Link link : sourceSiteLink){
+            Links pageLinks = new Links(link.getUrl(), link.getFilter());
+            pageLinks.generateFilterdData();
+            sourceSiteLinkList.add(pageLinks);
+        }
+
+        for (Links siteLinks : sourceSiteLinkList){
+            for (Element category : siteLinks.generateFilterdData()){
+
+                if (linkDao.findLinkBySubject(category.absUrl("href").toString()) == null){
+                    String tester = category.text();
+                    siteLinks.setLinkTitle(category.text());
+                    siteLinks.setLinkUrl(category.absUrl("href"));
+                    String filter = "";
+
+                    if (siteLinks.getLinkUrl().contains("google")) {
+                         filter = "[aria-level=2]";
+                    }
+                    else {
+                       filter = "a[class*='Fw(b) Fz(20px) Lh(23px)']";
+                    }
+
+                    Link categoryLink = new Link(siteLinks.getLinkUrl(), siteLinks.getLinkUrl(), filter);
+
+                    linkDao.save(categoryLink);
+                }
+
+            }
+
+            //Add single site link
+            if (linkDao.findLinkBySubject("Movies In Theaters") == null){
+                Link categoryLink = new Link("Movies In Theaters", "http://www.imdb.com/movies-in-theaters/", "h4 > a");
+                linkDao.save(categoryLink);
+            }
+
+        }
+
+        /**
+        com.myd.home.models.Link googleNews = new Link("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US", "[aria-level=2]");
+        linkDao.save(googleNews);*/
+
+        /**
         Links topMovies = new Links("http://www.imdb.com/movies-in-theaters/", "h4 > a");
         topMovies.generateFilterdData();
-        linkLists.add(topMovies);
+        linkLists.add(topMovies); **/
+
+        for (Link addLinks : linkDao.findAll()){
+
+            Links tempLink = new Links(addLinks.getUrl(), addLinks.getFilter());
+            tempLink.generateFilterdData();
+            linkLists.add(tempLink);
+        }
 
         for (Links page : linkLists){
 
-            int maxResults = 10;
+            int maxResults = 20;
             int index = 0;
 
             for (Element pageLink : page.getFilterdData()){
@@ -89,9 +150,9 @@ public class Home {
                     break;
                     }
 
-
             }
         }
+
 
         model.addAttribute("linkLists", linkLists);
         model.addAttribute("emails", emails);

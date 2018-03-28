@@ -2,14 +2,14 @@ package com.myd.home.models;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import sun.awt.image.ImageWatched;
-
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.util.HashMap;
 
 public class Links {
+
+    private Integer id;
 
     //url of page to rake data from
     private String rakedDataUrl;
@@ -35,10 +35,19 @@ public class Links {
     //Hashmap to hold combo of titles and urls
     private HashMap<String, String> titleAndUrl = new HashMap<>();
 
+    public Integer getId() {
+        return id;
+    }
+
+    public Links() {
+
+    }
+
     public Links(String rakedDataUrl, String filter) {
         this.rakedDataUrl = rakedDataUrl;
         this.filter = filter;
     }
+
 
     public String getRakedDataUrl() {
         return rakedDataUrl;
@@ -118,7 +127,16 @@ public class Links {
     }
 
     public void addToLinkList(String linkTitle, String linkUrl){
+        //substring chops the title to 50 characters or less
+        int titleLengthMax = 47;
+        int maxLength = (linkTitle.length() < titleLengthMax ? linkTitle.length() : titleLengthMax );
+        linkTitle = linkTitle.substring(0, maxLength);
+        linkTitle.concat("...");
         titleAndUrl.put(linkTitle, linkUrl);
+    }
+
+    public void addToDatabase(HashMap titleAndUrl){
+
     }
 }
 
