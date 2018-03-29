@@ -76,8 +76,8 @@ public class Home {
         com.myd.home.models.Link googleNews = new Link("https://news.google.com/news/?ned=us&gl=US&hl=en", "div.JAPqpe > a[target='_self']");
         sourceSiteLink.add(googleNews);
 
-        com.myd.home.models.Link yahooNews = new Link("https://www.yahoo.com/news/", "ul > li > a[title]");
-        sourceSiteLink.add(yahooNews);
+        //com.myd.home.models.Link yahooNews = new Link("https://www.yahoo.com/news/", "ul > li > a[title]");
+        //sourceSiteLink.add(yahooNews);
 
 
 
@@ -136,7 +136,7 @@ public class Home {
 
         for (Links page : linkLists){
 
-            int maxResults = 20;
+            int maxResults = 10;
             int index = 0;
 
             for (Element pageLink : page.getFilterdData()){

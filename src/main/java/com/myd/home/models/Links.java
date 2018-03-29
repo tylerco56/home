@@ -128,10 +128,10 @@ public class Links {
 
     public void addToLinkList(String linkTitle, String linkUrl){
         //substring chops the title to 50 characters or less
-        int titleLengthMax = 47;
+        int titleLengthMax = 42;
         int maxLength = (linkTitle.length() < titleLengthMax ? linkTitle.length() : titleLengthMax );
         linkTitle = linkTitle.substring(0, maxLength);
-        linkTitle.concat("...");
+        linkTitle += "...";
         titleAndUrl.put(linkTitle, linkUrl);
     }
 
