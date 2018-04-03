@@ -1,7 +1,7 @@
 package com.myd.home.controller;
 import com.myd.home.models.GmailApi;
 import com.myd.home.models.Link;
-import com.myd.home.models.Links;
+import com.myd.home.models.JSoupApi;
 import com.myd.home.models.User;
 import com.myd.home.models.data.LinkDao;
 import com.myd.home.models.data.UserDao;
@@ -18,6 +18,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -39,6 +40,8 @@ public class Home {
 
     GmailApi service = new GmailApi();
 
+    HashMap<Integer, String> subjectMenu = new HashMap<>();
+
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String loginGet(Model model) {
@@ -54,9 +57,9 @@ public class Home {
     @RequestMapping(value="/homepage", method = RequestMethod.GET)
     public String goHome(Principal principal, Model model, @RequestParam(required = false) String code) {
 
-        ArrayList<Links> linkLists = new ArrayList<>();
         ArrayList<Link> sourceSiteLink = new ArrayList<>();
-        ArrayList<Links> sourceSiteLinkList = new ArrayList<>();
+        ArrayList<JSoupApi> subjectSoup = new ArrayList<>();
+        ArrayList<JSoupApi> subjects = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         String username = principal.getName();
         String exception;
@@ -80,30 +83,37 @@ public class Home {
         //sourceSiteLink.add(yahooNews);
 
 
-
+        //pull major subject links from main website
         for (Link link : sourceSiteLink){
-            Links pageLinks = new Links(link.getUrl(), link.getFilter());
-            pageLinks.generateFilterdData();
-            sourceSiteLinkList.add(pageLinks);
+            JSoupApi pageLinks = new JSoupApi(link.getUrl(), link.getFilter());
+            pageLinks.generateFilteredData();
+            //source site link list contains the generated objects from jsoup api
+            subjectSoup.add(pageLinks);
         }
 
-        for (Links siteLinks : sourceSiteLinkList){
-            for (Element category : siteLinks.generateFilterdData()){
+        //loops through each links object
+        for (JSoupApi subject : subjectSoup){
+            //then cycles through the generated data by applying the filter
+            //result is individual elements
+            for (Element category : subject.getFilterdData()){
+                    //if subject link isn't in the database then it will add it there
+                if (linkDao.findLinkByUrl(category.absUrl("href").toString()) == null){
 
-                if (linkDao.findLinkBySubject(category.absUrl("href").toString()) == null){
-                    String tester = category.text();
-                    siteLinks.setLinkTitle(category.text());
-                    siteLinks.setLinkUrl(category.absUrl("href"));
+                    //set news subject news title
+                    subject.setLinkTitle(category.text());
+                    subject.setLinkUrl(category.absUrl("href"));
                     String filter = "";
 
-                    if (siteLinks.getLinkUrl().contains("google")) {
-                         filter = "[aria-level=2]";
+                    if (subject.getLinkUrl().contains("google")) {
+                        filter = "[aria-level=2]";
+                        subject.setLinkTitle("Google - " + category.text().substring(1));
                     }
                     else {
                        filter = "a[class*='Fw(b) Fz(20px) Lh(23px)']";
                     }
 
-                    Link categoryLink = new Link(siteLinks.getLinkUrl(), siteLinks.getLinkUrl(), filter);
+
+                    Link categoryLink = new Link(subject.getLinkTitle(), subject.getLinkUrl(), filter);
 
                     linkDao.save(categoryLink);
                 }
@@ -118,32 +128,23 @@ public class Home {
 
         }
 
-        /**
-        com.myd.home.models.Link googleNews = new Link("https://news.google.com/news/headlines/section/topic/TECHNOLOGY?ned=us&hl=en&gl=US", "[aria-level=2]");
-        linkDao.save(googleNews);*/
+        for (Link subjectLinks : linkDao.findAll()){
 
-        /**
-        Links topMovies = new Links("http://www.imdb.com/movies-in-theaters/", "h4 > a");
-        topMovies.generateFilterdData();
-        linkLists.add(topMovies); **/
-
-        for (Link addLinks : linkDao.findAll()){
-
-            Links tempLink = new Links(addLinks.getUrl(), addLinks.getFilter());
-            tempLink.generateFilterdData();
-            linkLists.add(tempLink);
+            JSoupApi loadSubjectSoup = new JSoupApi(subjectLinks.getUrl(), subjectLinks.getFilter());
+            loadSubjectSoup.generateFilteredData();
+            subjects.add(loadSubjectSoup);
         }
 
-        for (Links page : linkLists){
+        for (JSoupApi page : subjects){
 
             int maxResults = 10;
             int index = 0;
 
-            for (Element pageLink : page.getFilterdData()){
+            for (Element headline : page.getFilterdData()){
 
                if (index < maxResults){
-                    page.setLinkTitle(pageLink.text());
-                    page.setLinkUrl(pageLink.absUrl("href"));
+                    page.setLinkTitle(headline.text());
+                    page.setLinkUrl(headline.absUrl("href"));
                     page.addToLinkList(page.getLinkTitle(), page.getLinkUrl());
                     index++;
              } else {
@@ -154,11 +155,37 @@ public class Home {
         }
 
 
-        model.addAttribute("linkLists", linkLists);
+        model.addAttribute("linkLists", subjects);
         model.addAttribute("emails", emails);
         model.addAttribute("code", code);
 
         return "homepage";
+
+    }
+
+    @GetMapping(value = "/add-service")
+    public String addService(Model model){
+
+        for (Link subjectLinks : linkDao.findAll()){
+            subjectMenu.put(subjectLinks.getId(),subjectLinks.getSubject());
+        }
+
+        model.addAttribute("subjectMenu", subjectMenu);
+
+        return "add-service";
+
+    }
+
+    @PostMapping(value = "/add-service")
+    public String saveServices(){
+
+        ArrayList<String> subjectMenu = new ArrayList<>();
+
+        for (Link subjectLinks : linkDao.findAll()){
+            subjectMenu.add(subjectLinks.getSubject());
+        }
+
+        return "add-service";
 
     }
 

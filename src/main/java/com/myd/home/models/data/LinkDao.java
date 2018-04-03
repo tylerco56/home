@@ -12,6 +12,8 @@ import javax.persistence.Id;
 @Transactional
 public interface LinkDao extends CrudRepository<Link, Integer> {
 
+    Link findLinkByUrl(String url);
+
     Link findLinkBySubject(String subject);
 
 }

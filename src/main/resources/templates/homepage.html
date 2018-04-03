@@ -4,7 +4,6 @@
 <nav th:replace="fragments :: navigation"></nav>
 <body>
 <h6>Welcome user <span th:text="${username}" /></h6>
-
 <div  class="row">
     <ol th:each="page : ${linkLists}" class="col s4 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">

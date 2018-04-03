@@ -2,12 +2,14 @@ package com.myd.home.models;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Links {
+public class JSoupApi {
 
     private Integer id;
 
@@ -39,11 +41,11 @@ public class Links {
         return id;
     }
 
-    public Links() {
+    public JSoupApi() {
 
     }
 
-    public Links(String rakedDataUrl, String filter) {
+    public JSoupApi(String rakedDataUrl, String filter) {
         this.rakedDataUrl = rakedDataUrl;
         this.filter = filter;
     }
@@ -109,11 +111,21 @@ public class Links {
         return titleAndUrl;
     }
 
+    public void addToLinkList(String linkTitle, String linkUrl){
+        //substring chops the title to 50 characters or less
+        int titleLengthMax = 42;
+        int maxLength = (linkTitle.length() < titleLengthMax ? linkTitle.length() : titleLengthMax );
+        linkTitle = linkTitle.substring(0, maxLength) + "...";
+        titleAndUrl.put(linkTitle, linkUrl);
+    }
 
-    public Elements generateFilterdData(){
+    public Elements generateFilteredData() {
         try {
+            // stores data in a Document
             rakedDataPage = Jsoup.connect(rakedDataUrl).get();
+            // applies filter to document and generates Elements
             filteredData = rakedDataPage.select(filter);
+            // get website page title
             titlePage = rakedDataPage.title();
 
             return filteredData;
@@ -123,17 +135,8 @@ public class Links {
         }
 
         return null;
-
     }
 
-    public void addToLinkList(String linkTitle, String linkUrl){
-        //substring chops the title to 50 characters or less
-        int titleLengthMax = 42;
-        int maxLength = (linkTitle.length() < titleLengthMax ? linkTitle.length() : titleLengthMax );
-        linkTitle = linkTitle.substring(0, maxLength);
-        linkTitle += "...";
-        titleAndUrl.put(linkTitle, linkUrl);
-    }
 
     public void addToDatabase(HashMap titleAndUrl){
 

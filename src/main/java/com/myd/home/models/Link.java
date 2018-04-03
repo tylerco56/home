@@ -3,6 +3,7 @@ package com.myd.home.models;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Set;
 
 @Entity
 public class Link {
@@ -19,11 +20,6 @@ public class Link {
 
     @NotNull
     private String filter;
-
-    /**
-    @ManyToOne
-    private Link userLinks;
-    */
 
     public Link(){
 
@@ -71,4 +67,5 @@ public class Link {
     public void setFilter(String filter) {
         this.filter = filter;
     }
+
 }

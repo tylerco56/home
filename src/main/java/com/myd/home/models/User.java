@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Set;
 
 
 /**
@@ -36,13 +37,10 @@ public class User {
     @NotNull
     private Calendar creationDate = Calendar.getInstance();
 
-    /**
-    @OneToMany
-    @JoinColumn(name = "raked_link_id")
-    private ArrayList<Link> rakedSites = new ArrayList<>();
-    */
-
     private String token = "";
+
+    public User() {
+    }
 
     public String getEmail() {
         return email;
@@ -79,4 +77,5 @@ public class User {
     public void setToken(String token) {
         this.token = token;
     }
+
 }
