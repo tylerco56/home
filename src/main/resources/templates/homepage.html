@@ -4,12 +4,21 @@
 <nav th:replace="fragments :: navigation"></nav>
 <body>
 <h6>Welcome user <span th:text="${username}" /></h6>
+<form th:action='@{/homepage}' method="post">
+    <select name="serviceId" class="browser-default">
+        <span th:each="subject : ${subjectMenu}">
+            <option th:text="${subject.getname()}" th:value="${subject.getId()}"></option>
+        </span>
+    </select>
+    <input type="submit" value="Add Services" />
+</form>
+
 <div  class="row">
     <ol th:each="page : ${linkLists}" class="col s4 card-panel white z-depth-5 black-text text-darken-2">
         <div class="container card-title">
             <h5 th:text="${page.titlePage}"></h5>
             <li th:each="techArticle : ${page.titleAndUrl}" >
-                <a th:href="${techArticle.value}" th:text="${techArticle.key}"></a>
+                <a th:href="${techArticle.value}" target="_blank" th:text="${techArticle.key}"></a>
             </li>
         </div>
     </ol>

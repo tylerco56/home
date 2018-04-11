@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Set;
 
 
@@ -21,9 +22,12 @@ import java.util.Set;
 public class User {
 
     @Id
+    @GeneratedValue
+    private Integer id;
+
     @NotEmpty(message = "Email Required.")
     @Email
-    private String email;
+    private String name;
 
     @NotEmpty(message = "Password Required")
     @Size(min = 6, message = "Please make your password at least 6 characters.")
@@ -37,17 +41,22 @@ public class User {
     @NotNull
     private Calendar creationDate = Calendar.getInstance();
 
-    private String token = "";
+    @ManyToMany
+    private List<Link> services;
 
     public User() {
     }
 
-    public String getEmail() {
-        return email;
+    public void addLink(Link service){
+        services.add(service);
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPassword() {
@@ -70,12 +79,11 @@ public class User {
         return creationDate;
     }
 
-    public String getToken() {
-        return token;
+    public List<Link> getServices() {
+        return services;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setServices(List<Link> services) {
+        this.services = services;
     }
-
 }

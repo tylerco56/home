@@ -3,7 +3,7 @@ package com.myd.home.models;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 public class Link {
@@ -13,7 +13,7 @@ public class Link {
     private Integer id;
 
     @NotNull
-    private String subject;
+    private String name;
 
     @NotNull
     private String url;
@@ -21,12 +21,15 @@ public class Link {
     @NotNull
     private String filter;
 
+    @ManyToMany(mappedBy = "services")
+    private List<User> serviceUsers;
+
     public Link(){
 
     }
 
-    public Link(String subject, String url, String filter) {
-        this.subject = subject;
+    public Link(String name, String url, String filter) {
+        this.name = name;
         this.url = url;
         this.filter = filter;
     }
@@ -36,12 +39,12 @@ public class Link {
         this.filter = filter;
     }
 
-    public String getSubject() {
-        return subject;
+    public String getname() {
+        return name;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setname(String name) {
+        this.name = name;
     }
 
     public Integer getId() {
@@ -68,4 +71,11 @@ public class Link {
         this.filter = filter;
     }
 
+    public List<User> getServiceUsers() {
+        return serviceUsers;
+    }
+
+    public void setServiceUsers(List<User> serviceUsers) {
+        this.serviceUsers = serviceUsers;
+    }
 }
